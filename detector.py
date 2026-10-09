@@ -16,7 +16,6 @@ class ExponentialSmoother:
         else:
             self.decay_coef = np.exp(exp_factor / np.float32(decay_ms))
 
-        print(self.attack_coef, self.decay_coef)
         self.current = np.float32(0.0)
 
     def processSample(self, sample: np.float32):

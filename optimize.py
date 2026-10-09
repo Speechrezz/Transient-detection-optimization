@@ -6,6 +6,13 @@ from scipy.optimize import differential_evolution
 # - sample_rate: integer
 # - onsets: manually annotated sample positions
 
+'''
+TODO:
+    - Create evaluation function
+    - Create labeled dataset
+    - Optimize
+'''
+
 def objective(params, dataset):
     fast_release, slow_attack, slow_release, trigger, ratio = params
 

@@ -1,9 +1,8 @@
-from fileio import load_audio_mono, save_audio_mono
+from fileio import load_audio_mono, save_audio_mono, to_transient_positions, save_transients
 from detector import TransientDetector, TransientParams
 
-audio, sample_rate = load_audio_mono("./dataset/drums.wav")
-
-print(sample_rate, type(sample_rate))
+filename = "drums"
+audio, sample_rate = load_audio_mono(f"./dataset/{filename}.wav")
 
 params = TransientParams(
     sample_rate=sample_rate,
@@ -18,4 +17,5 @@ detector = TransientDetector(params)
 
 output = detector.process(audio)
 
-save_audio_mono("./out/drums.wav", output, sample_rate)
+save_transients(f"./dataset/{filename}.npy", to_transient_positions(output))
+save_audio_mono(f"./out/{filename}.wav", output, sample_rate)
