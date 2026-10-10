@@ -29,6 +29,9 @@ def load_dataset(directory: str | Path) -> list[dict]:
     dataset = []
 
     for wav_path in sorted(directory.glob("*.wav")):
+        if (".target" in wav_path.stem):
+            continue
+
         npy_path = wav_path.with_suffix(".npy")
 
         if not npy_path.exists():

@@ -5,7 +5,7 @@ def evaluate_transients(
         target: npt.NDArray[np.intp],
         detected: npt.NDArray[np.intp],
         sample_rate: float,
-        tolerance_ms: float = 10,
+        tolerance_ms: float = 2.0,
         timing_weight: float = 0.1,
 ):
     tolerance = max(1, round(tolerance_ms * 0.001 * sample_rate))

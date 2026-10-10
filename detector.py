@@ -49,7 +49,7 @@ class TransientParams:
     noise_floor: float = 0.0005 # -66 dB
 
 class TransientDetector:
-    def __init__(self, params: TransientParams):
+    def prepare(self, params: TransientParams):
         self.params = params
 
         self.thresh_upper = np.float32(params.trigger_thresh)
@@ -64,8 +64,9 @@ class TransientDetector:
     def process(self, array: npt.NDArray[np.float32]):
         output = np.zeros_like(array)
 
-        buffer_fast = self.env_fast.processArray(array)
-        buffer_slow = self.env_slow.processArray(array)
+        abs_array = np.abs(array)
+        buffer_fast = self.env_fast.processArray(abs_array)
+        buffer_slow = self.env_slow.processArray(abs_array)
 
         for i in range(len(array)):
             sample_fast = buffer_fast[i]

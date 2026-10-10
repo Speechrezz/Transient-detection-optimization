@@ -3,6 +3,10 @@ import numpy.typing as npt
 from scipy.optimize import differential_evolution
 
 from detector import TransientParams, TransientDetector
+import sys
+sys.path.append("build/Release")
+from detector_cpp import TransientParamsCpp, TransientDetectorCpp
+
 from evaluate import evaluate_transients
 from fileio import to_transient_positions, load_dataset
 
@@ -30,7 +34,7 @@ def run_detector(
     rearm_ratio: float
 ):
     # print("run_detector - begin")
-    params = TransientParams(
+    params = TransientParamsCpp(
         sample_rate=sample_rate,
         fast_decay=fast_decay,
         slow_decay=slow_decay,
@@ -38,7 +42,8 @@ def run_detector(
         trigger_thresh=trigger_thresh,
         rearm_ratio=rearm_ratio,
     )
-    detector = TransientDetector(params)
+    detector = TransientDetectorCpp()
+    detector.prepare(params)
     transients = detector.process(audio)
     # print("run_detector - end")
     return to_transient_positions(transients)
@@ -73,9 +78,9 @@ def objective(params, dataset):
     return float(np.mean(scores))
 
 bounds = [
-    (1.0, 30.0),     # Fast release (ms)
-    (3.0, 100.0),    # Slow attack (ms)
-    (20.0, 500.0),   # Slow release (ms)
+    (1.0, 100.0),    # Fast release (ms)
+    (3.0, 400.0),    # Slow attack (ms)
+    (20.0, 1000.0),  # Slow release (ms)
     (0.1, 2.0),      # Trigger threshold
     (0.1, 0.8),      # Rearm/trigger ratio
 ]
@@ -87,15 +92,21 @@ def main():
     result = differential_evolution(
         lambda p: objective(p, training_dataset),
         bounds=bounds,
-        maxiter=1,
-        popsize=12,
-        tol=0.001,
-        seed=42,
+        maxiter=150,
+        popsize=20,
+        tol=0.0001,
+        seed=1,
         polish=False,
         disp=True,
     )
 
-    print("Best parameters:", result.x)
+    print("Best parameters:")
+    print(f"\tfast_decay={result.x[0]},")
+    print(f"\tslow_attack={result.x[1]},")
+    print(f"\tslow_decay={result.x[2]},")
+    print(f"\ttrigger_thresh={result.x[3]},")
+    print(f"\trearm_ratio={result.x[4]},")
+
     print("Training loss:", result.fun)
 
 if __name__ == "__main__":
